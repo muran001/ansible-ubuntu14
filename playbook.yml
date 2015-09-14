@@ -3,8 +3,16 @@
   sudo: true
   user: vagrant
   tasks:
-    - name: install httpd
-      apt: name=apache2 state=installed
-    - name: be sure httpd is running and enabled
+    - name: package list update
+      apt: update_cache=yes
+    - name: install git
+      apt: name=git update_cache=yes state=latest
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=latest
+    - name: be sure apache2 is running and enabled
       service: name=apache2 state=running enabled=yes
+    - name: install nginx
+      apt: name=nginx update_cache=yes state=latest
+    - name: be sure nginx is running and enabled
+      service: name=nginx state=running enabled=yes
 
