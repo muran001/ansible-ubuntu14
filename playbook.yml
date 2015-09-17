@@ -2,17 +2,47 @@
 - hosts: servers
   sudo: true
   user: vagrant
+  vars:
+    mysql_root_password: rootroot
   tasks:
     - name: package list update
       apt: update_cache=yes
     - name: install git
-      apt: name=git update_cache=yes state=latest
+      apt: name=git state=latest
     - name: install apache2
-      apt: name=apache2 update_cache=yes state=latest
-    - name: be sure apache2 is running and enabled
-      service: name=apache2 state=running enabled=yes
-    - name: install nginx
-      apt: name=nginx update_cache=yes state=latest
-    - name: be sure nginx is running and enabled
-      service: name=nginx state=running enabled=yes
+      apt: name=apache2 state=latest
+    - name: enable mod_rewrite
+      apache2_module: name=rewrite state=present
+      notify:
+        - restart apache2
+    - name: install mysql
+      apt: name={{ item }} state=latest
+      with_items:
+        - mysql-server
+        - python-mysqldb
+    - name: be sure mysql is running and enabled
+      service: name=mysql state=started enabled=yes
+    - name: update mysql root password for all root accounts
+      mysql_user:
+        name: root
+        host: "{{ item }}"
+        password: "{{ mysql_root_password }}"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        check_implicit_admin: yes
+        priv: "*.*:ALL,GRANT"
+      with_items:
+        - "{{ ansible_hostname }}"
+        - 127.0.0.1
+        - ::1
+        - localhost
+    - name: create db
+      mysql_db:
+        name: test_db
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        state: present
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
 
