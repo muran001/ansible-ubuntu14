@@ -1,0 +1,4 @@
+---
+  git_url: "http://github.com/do-community/ansible-apache-tutorial.git"
+  dest_dir: "/var/www/{{ domain }}"
+  branch: master

@@ -1,0 +1,5 @@
+---
+  - name: package list update
+    apt: update_cache=yes
+  - name: install git
+    apt: name=git update_cache=yes state=latest

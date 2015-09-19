@@ -1,0 +1,7 @@
+---
+  - name: clone websites repository
+    git:
+      repo={{ git_url }}
+      dest={{ dest_dir }}
+      update=no
+
