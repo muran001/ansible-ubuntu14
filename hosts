@@ -1,3 +1,6 @@
-[servers]
-192.168.33.10 ansible_ssh_private_key_file=.vagrant/machines/default/virtualbox/private_key ansible_ssh_user=vagrant
+[webservers]
+192.168.33.10 ansible_ssh_private_key_file=.vagrant/machines/webserver1/virtualbox/private_key ansible_ssh_user=vagrant
+
+[dbservers]
+192.168.33.20 ansible_ssh_private_key_file=.vagrant/machines/dbserver1/virtualbox/private_key ansible_ssh_user=vagrant
 

@@ -1,9 +1,15 @@
 ---
-- hosts: servers
+- hosts: webservers
   sudo: true
   user: vagrant
   roles:
     - common
     - apache
-    - mysql
     - website
+    - rails
+- hosts: dbservers
+  sudo: true
+  user: vagrant
+  roles:
+    - common
+    - mysql

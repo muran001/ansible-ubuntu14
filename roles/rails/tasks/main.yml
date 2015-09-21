@@ -1,0 +1,57 @@
+---
+  - name: install ruby dependencies 
+    action: apt pkg={{item}} state=installed
+    with_items:
+      - build-essential
+      - automake
+      - bison
+      - autoconf
+      - pkg-config
+      - libreadline6
+      - libreadline6-dev
+      - openssl
+      - libssl-dev
+      - curl
+      - git-core
+      - zlib1g
+      - zlib1g-dev
+      - libyaml-dev
+      - libsqlite3-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - curl
+
+  - name: install rbenv
+    git: repo=https://github.com/sstephenson/rbenv.git dest={{ rbenv_root }}
+  - name: add {{ rbenv_root }}/bin to $PATH
+    lineinfile: dest=/etc/profile line=export\ PATH="{{ rbenv_root }}/bin:$PATH" regexp=PATH.*rbenv create=yes
+  - name: add rbenv init
+    lineinfile: dest=/etc/profile line=eval\ \"$(rbenv\ init\ -)\" regexp=eval.*rbenv create=yes
+   
+  - name: Install ruby-build as rbenv plugin
+    git: repo=https://github.com/sstephenson/ruby-build.git dest={{ rbenv_root }}/plugins/ruby-build
+  - name: install ruby-build
+    shell: "{{ rbenv_root }}/plugins/ruby-build/install.sh"
+  - name: Check if version is installed ruby
+    shell: "{{ rbenv_root }}/bin/rbenv versions | grep {{ ruby_version }}"
+    register: ruby_installed
+    changed_when: False
+    failed_when: False
+  - name: Install ruby
+    shell: "{{ rbenv_root }}/bin/rbenv install {{ ruby_version }}"
+    when: ruby_installed.rc != 0
+  - name: Check if version is the default ruby version
+    shell: "{{ rbenv_root }}/bin/rbenv version | grep {{ ruby_version }}"
+    register: global_installed
+    changed_when: False
+    failed_when: False
+  - name: Set default ruby version
+    shell: "{{ rbenv_root }}/bin/rbenv global {{ ruby_version }}"
+    when: global_installed.rc != 0
+
+  - name: update gems
+    shell: "{{ rbenv_root }}/bin/rbenv exec gem update --system"
+  - name: install bundler gem
+    shell: "{{ rbenv_root }}/bin/rbenv exec gem install bundler --no-ri --no-rdoc"
+  - name: rbenv rehash
+    shell: "{{ rbenv_root }}/bin/rbenv rehash"
